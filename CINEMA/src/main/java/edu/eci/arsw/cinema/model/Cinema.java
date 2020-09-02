@@ -20,6 +20,7 @@ public class Cinema {
     
     public Cinema(String name,List<CinemaFunction> functions){
         this.name=name;
+        
         this.functions=functions;
     }
 

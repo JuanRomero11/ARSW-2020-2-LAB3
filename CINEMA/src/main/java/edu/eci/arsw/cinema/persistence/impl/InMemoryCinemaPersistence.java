@@ -15,50 +15,81 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author cristian
  */
-public class InMemoryCinemaPersistence implements CinemaPersitence{
-    
-    private final Map<String,Cinema> cinemas=new HashMap<>();
+@Service("InMemoryCinemaPersistence")
+public class InMemoryCinemaPersistence implements CinemaPersitence {
+
+    private final Map<String, Cinema> cinemas = new HashMap<>();
 
     public InMemoryCinemaPersistence() {
         //load stub data
         String functionDate = "2018-12-18 15:30";
-        List<CinemaFunction> functions= new ArrayList<>();
-        CinemaFunction funct1 = new CinemaFunction(new Movie("SuperHeroes Movie","Action"),functionDate);
-        CinemaFunction funct2 = new CinemaFunction(new Movie("The Night","Horror"),functionDate);
+        List<CinemaFunction> functions = new ArrayList<>();
+        CinemaFunction funct1 = new CinemaFunction(new Movie("SuperHeroes Movie", "Action"), functionDate);
+        CinemaFunction funct2 = new CinemaFunction(new Movie("The Night", "Horror"), functionDate);
         functions.add(funct1);
         functions.add(funct2);
-        Cinema c=new Cinema("cinemaX",functions);
+        Cinema c = new Cinema("cinemaX", functions);
         cinemas.put("cinemaX", c);
-    }    
+    }
 
     @Override
     public void buyTicket(int row, int col, String cinema, String date, String movieName) throws CinemaException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        Cinema t = cinemas.get(cinema);       
+        for (CinemaFunction f : t.getFunctions()) {
+            if (f.getMovie().getName().equals(movieName) && f.getDate().equals(date)) {
+                f.buyTicket(row, col);
+            }
+        }
+
     }
 
     @Override
     public List<CinemaFunction> getFunctionsbyCinemaAndDate(String cinema, String date) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        List<CinemaFunction> c = new ArrayList<>();
+        Cinema t = cinemas.get(cinema);
+        for(CinemaFunction f: t.getFunctions()){
+            if (f.getDate().equals(date)) {
+                c.add(f);
+            }
+        }
+        return c;
+
     }
 
     @Override
     public void saveCinema(Cinema c) throws CinemaPersistenceException {
-        if (cinemas.containsKey(c.getName())){
-            throw new CinemaPersistenceException("The given cinema already exists: "+c.getName());
+        if (cinemas.containsKey(c.getName())) {
+            throw new CinemaPersistenceException("The given cinema already exists: " + c.getName());
+        } else {
+            cinemas.put(c.getName(), c);
         }
-        else{
-            cinemas.put(c.getName(),c);
-        }   
     }
 
     @Override
     public Cinema getCinema(String name) throws CinemaPersistenceException {
         return cinemas.get(name);
     }
+
+    @Override
+    public List<Cinema> getCinemas() {
+        List<Cinema> cinemas2 =new ArrayList<Cinema>();
+        for (Entry<String, Cinema> o : cinemas.entrySet()) {
+            cinemas2.add(o.getValue());
+        }
+        return cinemas2;
+    }
+
+    @Override
+    public void addCinema(Cinema c) {
+        cinemas.put(c.getName(),c);
+    }
+    
 
 }
